@@ -20,11 +20,13 @@ function deriveActivePlayer (gameTurns) {
 }
 
 function App () {
+  const [players, setPlayers] = useState({'X': 'Player1', 'O': 'Player2'});
   const [gameTurns, setGameTurns] = useState([]);
 
   const activePlayer = deriveActivePlayer(gameTurns);
 
   let gameBoard = [...initialGameBoard.map(inner => [...inner])]; //deep copy not to mutate initial gameboard
+
   for (const turn of gameTurns) {
     const {square, player} = turn;
     const {row, col} = square;
@@ -40,9 +42,9 @@ function App () {
     }
     let joinedLine = squareSymbols.join("");
     if (joinedLine === "XXX") {
-      winner = "X";
+      winner = players["X"];
     } else if (joinedLine === "OOO") {
-      winner = "O";
+      winner = players["O"];
     }
   }
 
@@ -60,12 +62,21 @@ function App () {
     setGameTurns([]);
   }
 
+  function handlePlayerNameChange (symbol, newName) {
+    setPlayers(prevNames => {
+      return {
+        ...prevNames,
+        [symbol]: newName
+      };
+    });
+  }
+
   return (
     <main>
       <div id='game-container'>
         <ol id="players" className="highlight-player">
-          <Player name='Player 1' symbol='X' isActive={activePlayer === 'X'} />
-          <Player name='Player 2' symbol='O' isActive={activePlayer === 'O'} />
+          <Player name='Player 1' symbol='X' isActive={activePlayer === 'X'} onChangeName={handlePlayerNameChange} />
+          <Player name='Player 2' symbol='O' isActive={activePlayer === 'O'} onChangeName={handlePlayerNameChange} />
         </ol>
         {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart} />}
         <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard} />
